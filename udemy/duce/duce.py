@@ -40,12 +40,12 @@ class Scrapper:
         async with self.session(headers=self.head) as ass:
             soup = bs(
                 await self.__fetch_html(
-                    ass, "https://www.discudemy.com/all/" + str(page)
+                    ass, f"https://www.discudemy.com/all/{str(page)}"
                 ),
                 "html5lib",
             )
             all = soup.find_all("section", "card")
-            for index, items in enumerate(all):
+            for items in all:
                 try:
                     title = items.a.text
                     url = items.a["href"]
@@ -53,9 +53,7 @@ class Scrapper:
                     next = soup.find("div", "ui center aligned basic segment")
                     url = next.a["href"]
                     soup = bs(await self.__fetch_html(ass, url), "html5lib")
-                    du_links.append(
-                        title + "|:|" + soup.find("div", "ui segment").a["href"]
-                    )
+                    du_links.append(f"{title}|:|" + soup.find("div", "ui segment").a["href"])
                 except AttributeError:
                     continue
             return self._parse(du_links)
@@ -65,21 +63,20 @@ class Scrapper:
         async with self.session(headers=self.head) as ass:
             soup = bs(
                 await self.__fetch_html(
-                    ass, "https://www.udemyfreebies.com/free-udemy-courses/" + str(page)
+                    ass,
+                    f"https://www.udemyfreebies.com/free-udemy-courses/{str(page)}",
                 ),
                 "html5lib",
             )
             all = soup.find_all("div", "coupon-name")
-            for index, items in enumerate(all):
+            for items in all:
                 try:
                     title = items.a.text
                     url = items.a["href"]
                     soup = bs(await self.__fetch_html(ass, url), "html5lib")
                     next = soup.find("a", class_="button-icon")
                     url = next["href"]
-                    uf_links.append(
-                        title + "|:|" + str(await self.__fetch_url(ass, url))
-                    )
+                    uf_links.append(f"{title}|:|{str(await self.__fetch_url(ass, url))}")
                 except AttributeError:
                     continue
         return self._parse(uf_links)
@@ -89,20 +86,21 @@ class Scrapper:
         async with self.session(headers=self.head) as ass:
             soup = bs(
                 await self.__fetch_html(
-                    ass, "https://www.tutorialbar.com/all-courses/page/" + str(page)
+                    ass,
+                    f"https://www.tutorialbar.com/all-courses/page/{str(page)}",
                 ),
                 "html5lib",
             )
             all = soup.find_all(
                 "div", class_="content_constructor pb0 pr20 pl20 mobilepadding"
             )
-            for index, items in enumerate(all):
-                title = items.a.text
+            for items in all:
                 url = items.a["href"]
                 soup = bs(await self.__fetch_html(ass, url), "html5lib")
                 link = soup.find("a", class_="btn_offer_block re_track_btn")["href"]
                 if "www.udemy.com" in link:
-                    tb_links.append(title + "|:|" + link)
+                    title = items.a.text
+                    tb_links.append(f"{title}|:|{link}")
         return self._parse(tb_links)
 
     async def real_discount(self, page) -> list:
@@ -110,18 +108,18 @@ class Scrapper:
         async with self.session(headers=self.head) as ass:
             soup = bs(
                 await self.__fetch_html(
-                    ass, "https://app.real.discount/stores/Udemy?page=" + str(page)
+                    ass, f"https://app.real.discount/stores/Udemy?page={str(page)}"
                 ),
                 "html5lib",
             )
             all = soup.find_all("div", class_="col-xl-4 col-md-6")
-            for index, items in enumerate(all):
+            for items in all:
                 title = items.h3.text
                 url = "https://app.real.discount" + items.a["href"]
                 soup = bs(await self.__fetch_html(ass, url), "html5lib")
                 try:
                     link = soup.select_one("a[href^='https://www.udemy.com']")["href"]
-                    rd_links.append(title + "|:|" + link)
+                    rd_links.append(f"{title}|:|{link}")
                 except:
                     pass
         return self._parse(rd_links)
@@ -150,14 +148,15 @@ class Scrapper:
             all = soup.find_all(
                 "div", attrs={"class": "stm_lms_courses__single--title"}
             )
-            for _, items in enumerate(all):
+            for items in all:
                 title = items.h5.text
                 url = items.a["href"]
                 soup = bs(await self.__fetch_html(ass, url), "html5lib")
                 cv_links.append(
-                    title
-                    + "|:|"
-                    + soup.find("div", attrs={"class": "stm-lms-buy-buttons"}).a["href"]
+                    f"{title}|:|"
+                    + soup.find("div", attrs={"class": "stm-lms-buy-buttons"}).a[
+                        "href"
+                    ]
                 )
         return self._parse(cv_links)
 
@@ -173,7 +172,7 @@ class Scrapper:
                 "html5lib",
             )
             all = soup.find_all("a", attrs={"class": "button product_type_external"})
-            for index, items in enumerate(all):
+            for items in all:
                 title = items["aria-label"]
                 link = unquote(items["href"]).split("ulp=")
                 try:
@@ -181,7 +180,7 @@ class Scrapper:
                 except IndexError:
                     link = link[0]
                 if link.startswith("https://www.udemy.com"):
-                    idc_links.append(title + "|:|" + link)
+                    idc_links.append(f"{title}|:|{link}")
         return self._parse(idc_links)
 
     @staticmethod
@@ -191,8 +190,7 @@ class Scrapper:
         _links = []
         r_links = []
         f_links = []
-        n = 1
-        for _link in links:
+        for n, _link in enumerate(links, start=1):
             link = _link.split("|:|")[1]
             title = _link.split("|:|")[0]
             lin = f"{n}) [{title}]({link})"
@@ -203,7 +201,6 @@ class Scrapper:
                 r_links = []
             else:
                 r_links.append(lin)
-            n += 1
         if r_links:
             f_links.append(r_links)
 
