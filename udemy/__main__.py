@@ -21,34 +21,32 @@ async def _(event):
     text = event.raw_text
     _cmd = text.split(" ", maxsplit=1)
     cmd = _cmd[0]
-    page = ""
-    if len(_cmd) == 2:
-        page = _cmd[1]
+    page = _cmd[1] if len(_cmd) == 2 else ""
     scp = Scrapper()
     msg = await event.reply("Wait...")
-    if cmd == "/discudemy":
+    if cmd == "/coursevania":
+        links = await scp.coursevania()
+    elif cmd == "/discudemy":
         if not page:
             page = 1
         links = await scp.discudemy(page)
-    elif cmd == "/udemy_freebies":
-        if not page:
-            page = 1
-        links = await scp.udemy_freebies(page)
-    elif cmd == "/tutorialbar":
-        if not page:
-            page = 1
-        links = await scp.tutorialbar(page)
-    elif cmd == "/real_discount":
-        if not page:
-            page = 1
-        links = await scp.real_discount(page)
-    elif cmd == "/coursevania":
-        links = await scp.coursevania()
     elif cmd == "/idcoupons":
         if not page:
             page = 1
         links = await scp.idcoupons(page)
 
+    elif cmd == "/real_discount":
+        if not page:
+            page = 1
+        links = await scp.real_discount(page)
+    elif cmd == "/tutorialbar":
+        if not page:
+            page = 1
+        links = await scp.tutorialbar(page)
+    elif cmd == "/udemy_freebies":
+        if not page:
+            page = 1
+        links = await scp.udemy_freebies(page)
     if not links:
         await msg.edit("No Free Courses Available 😞")
         return
